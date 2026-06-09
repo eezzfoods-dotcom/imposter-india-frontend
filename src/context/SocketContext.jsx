@@ -5,33 +5,38 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 const SocketContext = createContext(null);
 
+// Create socket ONCE outside component so it's immediately available
+const socket = io(BACKEND_URL, {
+  transports: ['websocket', 'polling'],
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+  autoConnect: true,
+});
+
 export function SocketProvider({ children }) {
-  const socketRef = useRef(null);
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(socket.connected);
 
   useEffect(() => {
-    const socket = io(BACKEND_URL, {
-      transports: ['websocket'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
-
     socket.on('connect', () => {
       console.log('[Socket] Connected:', socket.id);
       setConnected(true);
     });
-
     socket.on('disconnect', () => {
       console.log('[Socket] Disconnected');
       setConnected(false);
     });
-
-    socketRef.current = socket;
-    return () => socket.disconnect();
+    socket.on('connect_error', (e) => {
+      console.error('[Socket] Error:', e.message);
+    });
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('connect_error');
+    };
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, connected }}>
+    <SocketContext.Provider value={{ socket, connected }}>
       {children}
     </SocketContext.Provider>
   );
