@@ -136,6 +136,17 @@ export function HomeScreen() {
 }
 
 // ── LOBBY ─────────────────────────────────────────────────
+// ── RECONNECTING SCREEN ──────────────────────────────────
+export function ReconnectingScreen() {
+  return (
+    <div style={{minHeight:'100vh',background:'#000814',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16}}>
+      <div style={{width:80,height:80,borderRadius:'50%',background:'rgba(0,212,255,0.1)',border:'2px solid rgba(0,212,255,0.4)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',animation:'ringPulse 1.5s ease-in-out infinite'}}>🔄</div>
+      <p className="font-display" style={{fontSize:'1.5rem',color:'#00D4FF',letterSpacing:'0.1em'}}>RECONNECTING</p>
+      <p style={{fontSize:'0.8rem',color:'rgba(0,212,255,0.4)',fontFamily:"'DM Sans',sans-serif"}}>Getting you back into the game…</p>
+    </div>
+  );
+}
+
 export function LobbyScreen() {
   const { room, myIdx, startGame, removePlayer, error } = useGame();
   const [loading, setLoading] = useState(false);
@@ -160,7 +171,7 @@ export function LobbyScreen() {
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {room.players.map((p,i)=>p.name&&!p.removed&&(
-              <PlayerRow key={i} player={p} idx={i} isHost={i===0} isMe={i===myIdx}
+              <PlayerRow key={i} player={p} idx={i} isHost={i===0} isMe={i===myIdx} offline={p.online===false}
                 onRemove={isHost&&i!==0&&i!==myIdx?()=>removePlayer(i):null}/>
             ))}
             {filled.length<12&&(

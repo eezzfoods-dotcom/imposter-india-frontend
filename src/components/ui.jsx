@@ -152,19 +152,21 @@ export function SectionCard({ children, className='' }) {
 }
 
 // ── PLAYER ROW ────────────────────────────────────────────
-export function PlayerRow({ player, idx, isHost, isMe, onRemove, score }) {
+export function PlayerRow({ player, idx, isHost, isMe, onRemove, score, offline }) {
   const color = COLORS[idx%COLORS.length];
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
       style={{
         background: isMe?`${color}12`:'rgba(0,18,51,0.6)',
-        border:`1px solid ${isMe?color+'40':'rgba(0,212,255,0.08)'}`,
+        border:`1px solid ${isMe?color+'40':offline?'rgba(255,60,120,0.2)':'rgba(0,212,255,0.08)'}`,
         boxShadow: isMe?`0 0 10px ${color}20`:'none',
+        opacity: offline ? 0.6 : 1,
       }}>
       <Avatar idx={idx} size="sm"/>
       <span className="flex-1 font-body text-sm font-medium" style={{color:isMe?color:'rgba(255,255,255,0.8)'}}>{player.name}</span>
+      {offline && <span style={{fontSize:'0.65rem',color:'#FF3C78',fontFamily:"'DM Sans',sans-serif",fontWeight:700}}>⚡ offline</span>}
       {score!==undefined && <span className="font-display text-lg" style={{color}}>{score}pt</span>}
-      {isHost && <span className="text-xs font-bold" style={{color:'#FFB800'}}>👑</span>}
+      {isHost && !offline && <span className="text-xs font-bold" style={{color:'#FFB800'}}>👑</span>}
       {isMe&&!isHost && <span className="text-xs font-bold" style={{color}}>YOU</span>}
       {onRemove && (
         <button onClick={onRemove} className="w-6 h-6 rounded-md flex items-center justify-center text-xs"

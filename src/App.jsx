@@ -4,7 +4,7 @@ import { useOffline } from './context/OfflineContext';
 import {
   HomeScreen, LobbyScreen, PlayingScreen,
   SpinnerScreen, DiscussScreen, VoteScreen,
-  ResultScreen, LeaderboardScreen,
+  ResultScreen, LeaderboardScreen, ReconnectingScreen,
 } from './screens';
 import {
   OfflineSetupScreen, OfflinePassScreen, OfflineRevealScreen,
@@ -61,7 +61,7 @@ function ModeSelectScreen({ onSelectOnline, onSelectOffline }) {
 
 // ── APP ROOT ──────────────────────────────────────────────
 export default function App() {
-  const { screen: onlineScreen } = useGame();
+  const { screen: onlineScreen, reconnecting } = useGame();
   const { screen: offlineScreen, reset } = useOffline();
   const [mode, setMode] = useState('select'); // select | online | offline
 
@@ -88,6 +88,8 @@ export default function App() {
     offline_result:      <OfflineResultScreen/>,
     offline_leaderboard: <OfflineLeaderboardScreen/>,
   };
+
+  if (reconnecting) return <ReconnectingScreen />;
 
   if(mode==='select') {
     return <ModeSelectScreen
