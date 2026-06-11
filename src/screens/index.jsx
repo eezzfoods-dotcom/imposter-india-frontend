@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
+import { GameRulesModal } from '../components/GameRules';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS } from '../components/ui';
 
 const LANGS = ['Tamil','Telugu','Hindi','Malayalam','English'];
@@ -150,6 +151,7 @@ export function ReconnectingScreen() {
 export function LobbyScreen() {
   const { room, myIdx, startGame, removePlayer, error } = useGame();
   const [loading, setLoading] = useState(false);
+  const [showRules, setShowRules] = useState(false);
   if(!room) return null;
   const isHost = myIdx===0;
   const filled = room.players.filter(p=>p.name&&!p.removed);
@@ -191,6 +193,8 @@ export function LobbyScreen() {
           </div>
         </SectionCard>
 
+        {showRules && <GameRulesModal onClose={()=>setShowRules(false)}/>}
+
         {error&&<p style={{color:'#FF3C78',fontSize:'0.82rem',marginBottom:10,textAlign:'center'}}>⚠️ {error}</p>}
 
         {isHost?(
@@ -199,11 +203,13 @@ export function LobbyScreen() {
               START GAME ▶
             </Btn>
             {!canStart&&<p style={{textAlign:'center',fontSize:'0.72rem',color:'rgba(0,212,255,0.3)',marginTop:8,fontFamily:"'DM Sans',sans-serif"}}>Need at least 3 players ({filled.length} joined)</p>}
+          <button onClick={()=>setShowRules(true)} style={{display:'block',width:'100%',marginTop:10,background:'none',border:'none',color:'rgba(0,212,255,0.4)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer',textDecoration:'underline'}}>📖 How to Play</button>
           </>
         ):(
           <div style={{textAlign:'center',padding:'20px 0'}}>
             <LoadingDots/>
             <p style={{fontSize:'0.82rem',color:'rgba(0,212,255,0.35)',marginTop:10,fontFamily:"'DM Sans',sans-serif"}}>Waiting for host to start…</p>
+            <button onClick={()=>setShowRules(true)} style={{marginTop:10,background:'none',border:'none',color:'rgba(0,212,255,0.4)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer',textDecoration:'underline'}}>📖 How to Play</button>
           </div>
         )}
       </div>

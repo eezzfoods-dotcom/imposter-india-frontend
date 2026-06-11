@@ -106,3 +106,57 @@ export const ALL_ROUNDS = [
   {c:"Location",l:"Location",n:"Night Club",d:"DJ",g:"A loud dark hall with neon lights and thumping music"},
   {c:"Location",l:"Location",n:"TV Studio",d:"Camera Operator",g:"A brightly lit set where anchors present shows"},
 ];
+
+// ── REGIONAL CELEBRITY MODE ───────────────────────────────
+
+export const REGIONAL_ROUNDS = [
+  // Tamil Actors
+  { c:"Celebrity", l:"Tamil Actor", n:"Rajinikanth", d:"Actor/Producer", g:"A superstar known for his style, mass appeal and iconic dialogues", born:"Bengaluru", debut:"Apoorva Raagangal" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Kamal Haasan", d:"Actor/Director", g:"A versatile actor known for his method acting and political views", born:"Paramakudi", debut:"Kalathur Kannamma" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Vijay", d:"Actor/Producer", g:"A mass hero known as Thalapathy with a huge fan following", born:"Chennai", debut:"Naalaiya Theerpu" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Ajith Kumar", d:"Actor/Racing Driver", g:"Known as Thala, a stylish actor who is also a professional racing driver", born:"Hyderabad", debut:"En Veedu En Kanavar" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Suriya", d:"Actor/Producer", g:"Known for intense roles and his social work foundation", born:"Chennai", debut:"Nerrukku Ner" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Dhanush", d:"Actor/Singer/Director", g:"A national award winner known for his raw acting and famous for Kolaveri Di", born:"Chennai", debut:"Thulluvadho Ilamai" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Vikram", d:"Actor", g:"Known for his physical transformations and intense performances", born:"Chennai", debut:"En Kadhal Kanmani" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Vijay Sethupathi", d:"Actor", g:"Known as Makkal Selvan for his mass appeal and versatile roles", born:"Rajapalayam", debut:"Thenmerku Paruvakaatru" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Sivakarthikeyan", d:"Actor/Singer", g:"Started as a TV anchor and became one of Tamil cinema's biggest stars", born:"Nagercoil", debut:"Marina" },
+  { c:"Celebrity", l:"Tamil Actor", n:"Karthi", d:"Actor", g:"Son of Sivakumar known for action and rural drama films", born:"Chennai", debut:"Paruthiveeran" },
+
+  // Tamil Actresses
+  { c:"Celebrity", l:"Tamil Actress", n:"Nayanthara", d:"Actress/Producer", g:"Known as Lady Superstar, one of the most powerful actresses in South India", born:"Bangalore", debut:"Manasinakkare" },
+  { c:"Celebrity", l:"Tamil Actress", n:"Trisha", d:"Actress", g:"A popular actress known for her glamorous roles across Tamil and Telugu films", born:"Chennai", debut:"Mounam Pesiyadhe" },
+  { c:"Celebrity", l:"Tamil Actress", n:"Samantha", d:"Actress", g:"Known for her bold roles and the famous Oo Antava dance number", born:"Chennai", debut:"Ye Maaya Chesave" },
+  { c:"Celebrity", l:"Tamil Actress", n:"Jyothika", d:"Actress", g:"A popular actress of the 2000s known for emotional roles", born:"Mumbai", debut:"Vaali" },
+  { c:"Celebrity", l:"Tamil Actress", n:"Sai Pallavi", d:"Actress/Dancer", g:"Known for her natural acting and classical dance skills", born:"Kotagiri", debut:"Premam" },
+  { c:"Celebrity", l:"Tamil Actress", n:"Keerthy Suresh", d:"Actress", g:"National award winner known for her portrayal of Savitri in Mahanati", born:"Chennai", debut:"Geethaanjali" },
+
+  // Cricket Players
+  { c:"Celebrity", l:"Cricketer", n:"MS Dhoni", d:"Former India Captain/Wicketkeeper", g:"Known as Captain Cool, led India to World Cup victories and plays for CSK", born:"Ranchi", debut:"2004 vs Bangladesh" },
+  { c:"Celebrity", l:"Cricketer", n:"Virat Kohli", d:"Batsman/Former Captain", g:"India's most consistent run scorer known for his aggressive batting", born:"Delhi", debut:"2008 vs Sri Lanka" },
+  { c:"Celebrity", l:"Cricketer", n:"Rohit Sharma", d:"Batsman/Captain", g:"Known as Hitman for his powerful hitting and multiple double centuries", born:"Nagpur", debut:"2007 vs Ireland" },
+  { c:"Celebrity", l:"Cricketer", n:"Sachin Tendulkar", d:"Batsman (Retired)", g:"The God of Cricket with 100 international centuries", born:"Mumbai", debut:"1989 vs Pakistan" },
+  { c:"Celebrity", l:"Cricketer", n:"R. Ashwin", d:"Spinner/Batsman", g:"Tamil Nadu's pride and one of the world's best off-spin bowlers", born:"Chennai", debut:"2011 vs West Indies" },
+  { c:"Celebrity", l:"Cricketer", n:"Jasprit Bumrah", d:"Fast Bowler", g:"India's most lethal bowler with an unorthodox action", born:"Ahmedabad", debut:"2016 vs Australia" },
+  { c:"Celebrity", l:"Cricketer", n:"Hardik Pandya", d:"All-Rounder", g:"Known for his big hitting and fast bowling, hero of T20 World Cup 2024", born:"Surat", debut:"2016 vs New Zealand" },
+
+  // Tamil Politicians
+  { c:"Celebrity", l:"Tamil Politician", n:"M.G. Ramachandran", d:"Actor/Chief Minister", g:"Known as MGR, legendary actor who became Tamil Nadu's beloved Chief Minister", born:"Sri Lanka", party:"AIADMK" },
+  { c:"Celebrity", l:"Tamil Politician", n:"J. Jayalalithaa", d:"Chief Minister", g:"Known as Amma, powerful Chief Minister who dominated Tamil Nadu politics for decades", born:"Mysore", party:"AIADMK" },
+  { c:"Celebrity", l:"Tamil Politician", n:"M. Karunanidhi", d:"Chief Minister/Writer", g:"Known as Kalaignar, legendary politician and writer who was CM five times", born:"Sirkazhi", party:"DMK" },
+  { c:"Celebrity", l:"Tamil Politician", n:"M.K. Stalin", d:"Chief Minister", g:"Son of Karunanidhi and current Chief Minister of Tamil Nadu", born:"Chennai", party:"DMK" },
+  { c:"Celebrity", l:"Tamil Politician", n:"Narendra Modi", d:"Prime Minister", g:"India's current Prime Minister known for digital India and Make in India initiatives", born:"Vadnagar", party:"BJP" },
+
+  // Famous Indian Foods by City
+  { c:"City Food", l:"City Food", n:"Chennai Filter Coffee", d:"Chennai, Tamil Nadu", g:"A strong aromatic coffee served in a metal tumbler and davara" },
+  { c:"City Food", l:"City Food", n:"Hyderabadi Biryani", d:"Hyderabad, Telangana", g:"A fragrant slow-cooked rice dish with meat and spices" },
+  { c:"City Food", l:"City Food", n:"Mumbai Vada Pav", d:"Mumbai, Maharashtra", g:"A spiced potato fritter in a bread bun — the burger of Mumbai streets" },
+  { c:"City Food", l:"City Food", n:"Delhi Butter Chicken", d:"Delhi, North India", g:"A creamy tomato-based chicken curry invented in the capital" },
+  { c:"City Food", l:"City Food", n:"Kolkata Rosogolla", d:"Kolkata, West Bengal", g:"A spongy white sweet soaked in light sugar syrup" },
+  { c:"City Food", l:"City Food", n:"Lucknow Galouti Kebab", d:"Lucknow, Uttar Pradesh", g:"A melt-in-the-mouth minced meat kebab from the Nawabi kitchen" },
+  { c:"City Food", l:"City Food", n:"Amritsar Kulcha", d:"Amritsar, Punjab", g:"A stuffed bread baked in a tandoor served with chole" },
+  { c:"City Food", l:"City Food", n:"Mysore Pak", d:"Mysore, Karnataka", g:"A rich ghee-based sweet from the royal kitchens of Mysore" },
+  { c:"City Food", l:"City Food", n:"Kochi Appam with Stew", d:"Kochi, Kerala", g:"A lacy rice pancake served with a mild coconut milk stew" },
+  { c:"City Food", l:"City Food", n:"Jodhpur Mirchi Vada", d:"Jodhpur, Rajasthan", g:"A large green chilli stuffed with spiced potato and deep fried" },
+  { c:"City Food", l:"City Food", n:"Indore Poha", d:"Indore, Madhya Pradesh", g:"A light flattened rice breakfast garnished with sev and lemon" },
+  { c:"City Food", l:"City Food", n:"Ahmedabad Dhokla", d:"Ahmedabad, Gujarat", g:"A steamed fermented chickpea cake that is light and tangy" },
+];
