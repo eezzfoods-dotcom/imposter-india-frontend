@@ -337,7 +337,7 @@ export function OfflineDiscussScreen() {
 
         <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:8}}>
           <Btn onClick={showVote}>🗳 START VOTING ▶</Btn>
-          <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE MOVIE</Btn>
+          <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
         </div>
       </div>
     </Screen>

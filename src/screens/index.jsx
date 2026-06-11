@@ -463,7 +463,7 @@ export function DiscussScreen() {
         {isHost?(
           <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:8}}>
             <Btn onClick={moveToVote}>🗳 START VOTING ▶</Btn>
-            <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE MOVIE</Btn>
+            <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
           </div>
         ):(
           <p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',marginTop:16,fontFamily:"'DM Sans',sans-serif"}}>Host controls voting</p>
