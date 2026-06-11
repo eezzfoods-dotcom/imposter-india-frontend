@@ -6,7 +6,7 @@ const OfflineContext = createContext(null);
 const COLORS = ['#00D4FF','#FF3C78','#00FF94','#FFB800','#C44DFF','#FF6B35','#00E5FF','#FF4081','#69FF47','#FF9100'];
 const EMOJIS = ['🎬','🎭','🎥','🍿','🎞','🎦','📽','🎪','🎨','🃏'];
 
-const PTS = { crewCaught:3, crewEscape:-1, impEscape:4, impCaught:-2 };
+const PTS = { votedRight:3, votedWrong:-1, impEscape:4, impCaught:-2 };
 
 const INITIAL = {
   screen: 'offline_setup',
@@ -159,7 +159,15 @@ function reducer(state, action) {
       const newScores = {...state.scores};
       state.players.forEach((_,i)=>{
         const isImp = i===state.impIdx;
-        newScores[i] = (newScores[i]||0) + (isImp?(impCaught?PTS.impCaught:PTS.impEscape):(impCaught?PTS.crewCaught:PTS.crewEscape));
+        if(isImp){
+          newScores[i] = (newScores[i]||0) + (impCaught ? PTS.impCaught : PTS.impEscape);
+        } else {
+          const myVote = state.votes[i];
+          if(myVote !== undefined){
+            const votedCorrectly = myVote === state.impIdx;
+            newScores[i] = (newScores[i]||0) + (votedCorrectly ? PTS.votedRight : PTS.votedWrong);
+          }
+        }
       });
 
       const resultData = { eliminatedIdx, impCaught, imposterRevealed:false, impIdxs:[state.impIdx], tally };
@@ -171,7 +179,8 @@ function reducer(state, action) {
     case 'IMPOSTER_WON': {
       const newScores = {...state.scores};
       state.players.forEach((_,i)=>{
-        newScores[i] = (newScores[i]||0) + (i===state.impIdx ? PTS.impEscape : PTS.crewEscape);
+        const isImp = i===state.impIdx;
+        newScores[i] = (newScores[i]||0) + (isImp ? PTS.impEscape : PTS.votedWrong);
       });
       const resultData = { eliminatedIdx:-1, impCaught:false, imposterRevealed:true, impIdxs:[state.impIdx], tally:{} };
       const roundHistory = [...state.roundHistory, { name:state.round.n, impIdx:state.impIdx, caught:false }];
