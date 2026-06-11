@@ -149,10 +149,23 @@ export function ReconnectingScreen() {
 }
 
 export function LobbyScreen() {
-  const { room, myIdx, startGame, removePlayer, error } = useGame();
+  const { room, myIdx, startGame, removePlayer, joinRoom, error } = useGame();
   const [loading, setLoading] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [addingPlayer, setAddingPlayer] = useState(false);
+  const [newPlayerName, setNewPlayerName] = useState('');
   if(!room) return null;
+
+  function handleExitGame() {
+    if(window.confirm('Exit game? This will end the game for all players.')) {
+      localStorage.removeItem('ii_session');
+      window.location.reload();
+    }
+  }
+
+  function handleAddPlayer() {
+    setAddingPlayer(true);
+  }
   const isHost = myIdx===0;
   const filled = room.players.filter(p=>p.name&&!p.removed);
   const canStart = filled.length>=3;
@@ -193,6 +206,22 @@ export function LobbyScreen() {
           </div>
         </SectionCard>
 
+        {addingPlayer && (
+          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+            <div style={{width:'100%',maxWidth:320,background:'#000c28',border:'1px solid rgba(0,212,255,0.3)',borderRadius:20,padding:20}}>
+              <p className="font-display" style={{fontSize:'1.5rem',color:'#00D4FF',marginBottom:16}}>ADD PLAYER</p>
+              <input value={newPlayerName} onChange={e=>setNewPlayerName(e.target.value)}
+                placeholder="Enter player name" maxLength={12}
+                style={{width:'100%',background:'rgba(0,18,51,0.8)',border:'1px solid rgba(0,212,255,0.3)',borderRadius:10,padding:'10px 14px',color:'white',fontFamily:"'DM Sans',sans-serif",fontSize:'1rem',outline:'none',marginBottom:12,boxSizing:'border-box'}}
+                onKeyDown={e=>e.key==='Enter'&&newPlayerName.trim()&&(joinRoom(room.code,newPlayerName.trim()),setAddingPlayer(false),setNewPlayerName(''))}
+                autoFocus/>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>{setAddingPlayer(false);setNewPlayerName('');}} style={{flex:1,padding:'10px',borderRadius:10,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.5)',fontFamily:"'DM Sans',sans-serif",cursor:'pointer'}}>Cancel</button>
+                <button onClick={()=>{if(newPlayerName.trim()){joinRoom(room.code,newPlayerName.trim());setAddingPlayer(false);setNewPlayerName('');}}} style={{flex:2,padding:'10px',borderRadius:10,background:'linear-gradient(135deg,#0099CC,#00D4FF)',border:'none',color:'#000814',fontFamily:"'Bebas Neue',sans-serif",fontSize:'1rem',letterSpacing:'0.1em',cursor:'pointer'}}>ADD ▶</button>
+              </div>
+            </div>
+          </div>
+        )}
         {showRules && <GameRulesModal onClose={()=>setShowRules(false)}/>}
 
         {error&&<p style={{color:'#FF3C78',fontSize:'0.82rem',marginBottom:10,textAlign:'center'}}>⚠️ {error}</p>}
@@ -204,6 +233,16 @@ export function LobbyScreen() {
             </Btn>
             {!canStart&&<p style={{textAlign:'center',fontSize:'0.72rem',color:'rgba(0,212,255,0.3)',marginTop:8,fontFamily:"'DM Sans',sans-serif"}}>Need at least 3 players ({filled.length} joined)</p>}
           <button onClick={()=>setShowRules(true)} style={{display:'block',width:'100%',marginTop:10,background:'none',border:'none',color:'rgba(0,212,255,0.4)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer',textDecoration:'underline'}}>📖 How to Play</button>
+
+          {/* Host controls */}
+          <div style={{display:'flex',gap:8,marginTop:12}}>
+            <button onClick={handleAddPlayer} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(0,212,255,0.08)',border:'1px solid rgba(0,212,255,0.2)',color:'rgba(0,212,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.78rem',cursor:'pointer'}}>
+              ➕ Add Player
+            </button>
+            <button onClick={handleExitGame} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(255,60,120,0.08)',border:'1px solid rgba(255,60,120,0.2)',color:'#FF3C78',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.78rem',cursor:'pointer'}}>
+              🚪 Exit Game
+            </button>
+          </div>
           </>
         ):(
           <div style={{textAlign:'center',padding:'20px 0'}}>
@@ -542,6 +581,7 @@ export function DiscussScreen() {
           <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:8}}>
             <Btn onClick={moveToVote}>🗳 START VOTING ▶</Btn>
             <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
+            <button onClick={()=>{if(window.confirm('Exit game?')){localStorage.removeItem('ii_session');window.location.reload();}}} style={{padding:'10px',borderRadius:12,background:'transparent',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.3)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit Game</button>
           </div>
         ):(
           <p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',marginTop:16,fontFamily:"'DM Sans',sans-serif"}}>Host controls voting</p>
@@ -670,9 +710,12 @@ export function ResultScreen() {
         </SectionCard>
 
         {isHost&&(
-          <Btn onClick={()=>{setLoading(true);(isLastRound?goLeaderboard:nextRound)(()=>setLoading(false));}} loading={loading}>
-            {isLastRound?'FINAL LEADERBOARD ▶':'NEXT ROUND ▶'}
-          </Btn>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            <Btn onClick={()=>{setLoading(true);(isLastRound?goLeaderboard:nextRound)(()=>setLoading(false));}} loading={loading}>
+              {isLastRound?'FINAL LEADERBOARD ▶':'NEXT ROUND ▶'}
+            </Btn>
+            <button onClick={()=>{if(window.confirm('Exit game?')){localStorage.removeItem('ii_session');window.location.reload();}}} style={{padding:'10px',borderRadius:12,background:'transparent',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.3)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit Game</button>
+          </div>
         )}
         {!isHost&&<p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',padding:12,fontFamily:"'DM Sans',sans-serif"}}>Waiting for host…</p>}
       </div>
@@ -723,7 +766,10 @@ export function LeaderboardScreen() {
         </SectionCard>
 
         {isHost?(
-          <Btn onClick={playAgain} className="mt-2">PLAY AGAIN ▶</Btn>
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:8}}>
+            <Btn onClick={playAgain}>PLAY AGAIN ▶</Btn>
+            <button onClick={()=>{localStorage.removeItem('ii_session');window.location.reload();}} style={{padding:'10px',borderRadius:12,background:'transparent',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.3)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit Game</button>
+          </div>
         ):(
           <p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',padding:12,fontFamily:"'DM Sans',sans-serif"}}>Waiting for host to start again…</p>
         )}
