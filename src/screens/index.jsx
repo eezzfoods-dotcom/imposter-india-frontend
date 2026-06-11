@@ -413,6 +413,64 @@ export function SpinnerScreen() {
   );
 }
 
+// ── ROLE REVEAL PANEL ────────────────────────────────────
+function RoleRevealPanel({ myRole, myIdx }) {
+  const [open, setOpen] = useState(false);
+  if (!myRole) return null;
+  const { isImp, round, resolvedClue, locList } = myRole;
+  const color = COLORS[myIdx % COLORS.length];
+
+  return (
+    <div style={{marginBottom:12}}>
+      <button onClick={()=>setOpen(o=>!o)}
+        className="btn-press w-full rounded-xl px-4 py-2.5 flex items-center justify-between"
+        style={{background:isImp?'rgba(255,60,120,0.1)':'rgba(0,212,255,0.08)',border:`1px solid ${isImp?'rgba(255,60,120,0.3)':'rgba(0,212,255,0.2)'}`}}>
+        <span style={{fontSize:'0.75rem',fontWeight:700,fontFamily:"'DM Sans',sans-serif",color:isImp?'#FF3C78':'#00D4FF'}}>
+          {isImp ? '🕵️ YOU ARE THE IMPOSTER' : `👁 TAP TO SEE YOUR ${(round?.c||'MOVIE').toUpperCase()}`}
+        </span>
+        <span style={{color:isImp?'rgba(255,60,120,0.6)':'rgba(0,212,255,0.5)',fontSize:'1rem'}}>{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="animate-fade-up rounded-xl p-3 mt-1"
+          style={{background:isImp?'rgba(255,60,120,0.08)':`${color}0a`,border:`1px solid ${isImp?'rgba(255,60,120,0.2)':color+'30'}`}}>
+          {isImp ? (
+            <div>
+              <p style={{fontSize:'0.7rem',letterSpacing:'0.2em',color:'rgba(255,60,120,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,marginBottom:6}}>YOUR CLUE</p>
+              {round?.c==='Location' ? (
+                <p style={{fontSize:'0.85rem',color:'rgba(255,255,255,0.7)',fontFamily:"'DM Sans',sans-serif"}}>You don't know the location — bluff!</p>
+              ) : (
+                <>
+                  <p style={{fontSize:'0.7rem',color:'rgba(255,255,255,0.35)',fontFamily:"'DM Sans',sans-serif"}}>{resolvedClue?.label}</p>
+                  <p style={{fontSize:'1rem',color:'white',fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{resolvedClue?.value||'—'}</p>
+                </>
+              )}
+            </div>
+          ) : (
+            <div>
+              <p style={{fontSize:'0.7rem',letterSpacing:'0.2em',color:`${color}99`,fontFamily:"'DM Sans',sans-serif",fontWeight:700,marginBottom:4}}>
+                {round?.c==='Location'?'THE LOCATION IS':round?.c==='Food'?'THE FOOD IS':'THE MOVIE IS'}
+              </p>
+              <p className="font-display" style={{fontSize:'1.5rem',color,marginBottom:2}}>{round?.n}</p>
+              <p style={{fontSize:'0.78rem',color:'rgba(255,255,255,0.4)',fontFamily:"'DM Sans',sans-serif"}}>{round?.d}</p>
+              {round?.c==='Location' && (
+                <div style={{marginTop:8}}>
+                  <p style={{fontSize:'0.65rem',color:'rgba(0,212,120,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,marginBottom:6}}>YOUR LOCATION IS HIGHLIGHTED</p>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                    {(locList||[]).map(loc=>(
+                      <span key={loc} style={{padding:'3px 10px',borderRadius:4,fontSize:'0.7rem',fontFamily:"'DM Sans',sans-serif",fontWeight:600,...(loc===round?.n?{background:'#00D478',color:'#001a0a'}:{background:'rgba(0,212,120,0.1)',color:'rgba(0,212,120,0.7)',border:'1px solid rgba(0,212,120,0.2)'})}}>{loc}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── DISCUSS ───────────────────────────────────────────────
 export function DiscussScreen() {
   const { room, myIdx, myRole, moveToVote, imposterWon } = useGame();
@@ -436,6 +494,9 @@ export function DiscussScreen() {
             <p className="font-display" style={{fontSize:'1.5rem',color:'rgba(0,212,255,0.5)'}}>{room.roundNum}/{room.totalRounds}</p>
           </div>
         </div>
+
+        {/* Role reveal */}
+        <RoleRevealPanel myRole={myRole} myIdx={myIdx}/>
 
         {/* First speaker */}
         <div className="rounded-xl p-3 mb-3 flex items-center gap-3"
@@ -486,7 +547,7 @@ export function DiscussScreen() {
 
 // ── VOTE ──────────────────────────────────────────────────
 export function VoteScreen() {
-  const { room, myIdx, castVote, lockVotes } = useGame();
+  const { room, myIdx, myRole, castVote, lockVotes } = useGame();
   const [myVote, setMyVote] = useState(-1);
   if(!room) return null;
   const isHost = myIdx===0;
@@ -504,6 +565,9 @@ export function VoteScreen() {
           <h1 className="font-display cyber-text animate-flicker" style={{fontSize:'3.5rem',letterSpacing:'0.06em'}}>VOTE NOW</h1>
           <p style={{fontSize:'0.8rem',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif"}}>Who is the imposter?</p>
         </div>
+
+        {/* Role reveal */}
+        <RoleRevealPanel myRole={myRole} myIdx={myIdx}/>
 
         {/* Progress */}
         <div className="rounded-xl p-3 mb-4 flex items-center gap-3" style={{background:'rgba(0,18,51,0.8)',border:'1px solid rgba(0,212,255,0.1)'}}>
