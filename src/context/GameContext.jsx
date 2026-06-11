@@ -37,7 +37,7 @@ export function GameProvider({ children }) {
     // Server broadcasts new room state
     socket.on('room:update', (room) => {
       dispatch({ type: 'SET_ROOM', room });
-      // Sync screen with phase
+      // Sync screen with phase — always update screen on room:update
       const phaseToScreen = {
         lobby:       'lobby',
         playing:     'playing',
@@ -47,8 +47,9 @@ export function GameProvider({ children }) {
         result:      'result',
         leaderboard: 'leaderboard',
       };
-      if (phaseToScreen[room.phase]) {
-        dispatch({ type: 'SET_SCREEN', screen: phaseToScreen[room.phase] });
+      const newScreen = phaseToScreen[room.phase];
+      if (newScreen) {
+        dispatch({ type: 'SET_SCREEN', screen: newScreen });
       }
     });
 

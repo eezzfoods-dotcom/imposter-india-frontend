@@ -510,7 +510,7 @@ export function VoteScreen() {
         ):(
           <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
             {room.players.map((p,i)=>{
-              if(!p.name||p.removed||i===myIdx) return null;
+              if(!p.name||p.removed||(myIdx>=0&&i===myIdx)) return null;
               const color=COLORS[i%COLORS.length];
               return(
                 <button key={i} onClick={()=>handleVote(i)}
