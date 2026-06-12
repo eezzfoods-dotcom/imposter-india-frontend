@@ -48,17 +48,28 @@ function pickRound(cfg, usedIndices) {
 }
 
 function resolveClue(round, clueType='director') {
-  if(!round) return {label:'Director',value:''};
+  if(!round) return {label:'Clue',value:'—'};
   if(round.c==='Location') return {label:'',value:''};
   if(round.c==='Food') return {label:'Origin',value:round.d||''};
-  const map = {hero:round.hero,heroine:round.heroine,comedian:round.comedian};
-  const raw = map[clueType];
-  if(!raw||raw==='None'||raw===round.d) return {label:'Director',value:round.d||''};
-  return {label:{hero:'Hero',heroine:'Heroine',comedian:'Comedian'}[clueType],value:raw};
+  if(round.c==='Artist') return {label:'Profession',value:round.d||''};
+  if(round.c==='Sports') return {label:'Sport',value:round.d||''};
+
+  const valueMap = {
+    director: round.d,
+    hero:     round.hero    !=='None'?round.hero    :round.d,
+    heroine:  round.heroine !=='None'?round.heroine :round.d,
+    comedian: round.comedian!=='None'?round.comedian:round.d,
+  };
+  const labelMap = {director:'Director',hero:'Hero',heroine:'Heroine',comedian:'Comedian'};
+  const value = valueMap[clueType]||round.d;
+  const label = labelMap[clueType]||'Director';
+  if(value===round.n) return {label:'Director',value:round.d||''};
+  return {label, value:value||round.d||''};
 }
 
 function pickClueType(round) {
-  if(!round||round.l!=='Tamil') return 'director';
+  if(!round) return 'director';
+  if(['Location','Food','Artist','Sports'].includes(round.c)) return round.c.toLowerCase();
   const opts=['director'];
   if(round.hero&&round.hero!=='None'&&round.hero!==round.d) opts.push('hero');
   if(round.heroine&&round.heroine!=='None'&&round.heroine!==round.d) opts.push('heroine');
