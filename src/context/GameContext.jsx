@@ -137,7 +137,9 @@ export function GameProvider({ children }) {
     },
 
     createRoom: (hostName, cfg, cb) => {
-      socket.emit('room:create', { hostName, cfg }, (res) => {
+      const avatar = localStorage.getItem('ii_avatar')||'🎬';
+      const color = localStorage.getItem('ii_color')||'#00D4FF';
+      socket.emit('room:create', { hostName, cfg, avatar, color }, (res) => {
         if (!res.ok) return dispatch({ type: 'SET_ERROR', error: res.error });
         dispatch({ type: 'SET_MY_IDX', idx: res.playerIdx });
         dispatch({ type: 'SET_ROOM', room: res.room });
@@ -148,7 +150,9 @@ export function GameProvider({ children }) {
     },
 
     joinRoom: (code, playerName, cb) => {
-      socket.emit('room:join', { code, playerName }, (res) => {
+      const avatar = localStorage.getItem('ii_avatar')||'🎬';
+      const color = localStorage.getItem('ii_color')||'#00D4FF';
+      socket.emit('room:join', { code, playerName, avatar, color }, (res) => {
         if (!res.ok) return dispatch({ type: 'SET_ERROR', error: res.error });
         dispatch({ type: 'SET_MY_IDX', idx: res.playerIdx });
         dispatch({ type: 'SET_ROOM', room: res.room });

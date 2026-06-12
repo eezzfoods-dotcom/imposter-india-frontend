@@ -1,6 +1,30 @@
 export const COLORS = ['#00D4FF','#FF3C78','#00FF94','#FFB800','#C44DFF','#FF6B35','#00E5FF','#FF4081','#69FF47','#FF9100'];
 export const EMOJIS = ['🎬','🎭','🎥','🍿','🎞','🎦','📽','🎪','🎨','🃏'];
 
+// ── AVATAR SYSTEM ─────────────────────────────────────────
+export const AVATAR_CATEGORIES = {
+  'Cinema': ['🎬','🎭','🎥','🍿','🎞','🎦','📽','🎪','🎨','🎤'],
+  'Animals': ['🦁','🐯','🦊','🐼','🦝','🦄','🐸','🦋','🦅','🐉'],
+  'Sports':  ['🏏','⚽','🏀','🎾','🏊','🚴','🥊','🏋️','🎯','🏆'],
+  'Food':    ['🌶️','🍛','🍕','🍜','🧆','🥘','🍣','🧁','🍔','🥗'],
+};
+
+export const ALL_AVATARS = Object.values(AVATAR_CATEGORIES).flat();
+
+export function getMyAvatar() {
+  return localStorage.getItem('ii_avatar') || '🎬';
+}
+
+export function getMyColor() {
+  const saved = localStorage.getItem('ii_color');
+  return saved || COLORS[0];
+}
+
+export function AvatarPicker({ onSelect, selectedEmoji, selectedColor }) {
+  const { useState: useStateLocal } = require !== undefined ? { useState: null } : {};
+  return null; // placeholder - implemented in screens
+}
+
 // ── LOADING DOTS ──────────────────────────────────────────
 export function LoadingDots() {
   return (
@@ -94,9 +118,9 @@ export function Input({ value, onChange, placeholder, maxLength, className='', u
 }
 
 // ── AVATAR ────────────────────────────────────────────────
-export function Avatar({ idx, size='md', pulse }) {
-  const color = COLORS[idx%COLORS.length];
-  const emoji = EMOJIS[idx%EMOJIS.length];
+export function Avatar({ idx, size='md', pulse, emoji: customEmoji, color: customColor }) {
+  const color = customColor || COLORS[idx%COLORS.length];
+  const emoji = customEmoji || EMOJIS[idx%EMOJIS.length];
   const sizes = { xs:28, sm:36, md:48, lg:72, xl:96 };
   const fonts = { xs:'0.7rem', sm:'0.9rem', md:'1.2rem', lg:'1.8rem', xl:'2.5rem' };
   const s = sizes[size];
@@ -153,7 +177,8 @@ export function SectionCard({ children, className='' }) {
 
 // ── PLAYER ROW ────────────────────────────────────────────
 export function PlayerRow({ player, idx, isHost, isMe, onRemove, score, offline }) {
-  const color = COLORS[idx%COLORS.length];
+  const color = player?.color || COLORS[idx%COLORS.length];
+  const avatar = player?.avatar || EMOJIS[idx%EMOJIS.length];
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
       style={{
@@ -162,8 +187,8 @@ export function PlayerRow({ player, idx, isHost, isMe, onRemove, score, offline 
         boxShadow: isMe?`0 0 10px ${color}20`:'none',
         opacity: offline ? 0.6 : 1,
       }}>
-      <Avatar idx={idx} size="sm"/>
-      <span className="flex-1 font-body text-sm font-medium" style={{color:isMe?color:'rgba(255,255,255,0.8)'}}>{player.name}</span>
+      <Avatar idx={idx} size="sm" emoji={avatar} color={color}/>
+      <span className="flex-1 font-body text-sm font-medium" style={{color:isMe?color:'rgba(255,255,255,0.8)'}}>{player?.name}</span>
       {offline && <span style={{fontSize:'0.65rem',color:'#FF3C78',fontFamily:"'DM Sans',sans-serif",fontWeight:700}}>⚡ offline</span>}
       {score!==undefined && <span className="font-display text-lg" style={{color}}>{score}pt</span>}
       {isHost && !offline && <span className="text-xs font-bold" style={{color:'#FFB800'}}>👑</span>}

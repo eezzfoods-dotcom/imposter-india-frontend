@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameRulesModal } from '../components/GameRules';
+import { AvatarPickerModal } from '../components/AvatarPicker';
+import { getMyAvatar, getMyColor, COLORS, ALL_AVATARS } from '../components/ui';
 import { haptic } from '../utils/haptic';
 import { toggleTheme, getTheme, applyTheme } from '../utils/theme';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS } from '../components/ui';
@@ -13,6 +15,9 @@ export function HomeScreen() {
   const { createRoom, joinRoom, error } = useGame();
   const [view, setView]       = useState(()=>sessionStorage.getItem('auto_join_code')?'join':'home');
   const [themeLabel, setThemeLabel] = useState(getTheme()==='light'?'🌙 Dark Mode':'☀️ Light Mode');
+  const [myAvatar, setMyAvatar] = useState(getMyAvatar);
+  const [myColor, setMyColor]   = useState(getMyColor);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [hostName, setHostName] = useState('');
   const [joinName, setJoinName] = useState('');
   const [joinCode, setJoinCode] = useState(()=>sessionStorage.getItem('auto_join_code')||'');
@@ -110,6 +115,24 @@ export function HomeScreen() {
         {['8%','22%','72%','88%'].map((l,i)=>(
           <div key={i} style={{position:'absolute',left:l,bottom:0,fontFamily:"'Bebas Neue',sans-serif",fontSize:[20,14,18,12][i],color:'rgba(0,212,255,0.08)',animation:`floatQ ${[5,7,6,8][i]}s linear ${[0,1.5,0.8,2.5][i]}s infinite`,pointerEvents:'none',userSelect:'none'}}>?</div>
         ))}
+
+        {/* Avatar picker modal */}
+        {showAvatarPicker && (
+          <AvatarPickerModal
+            currentEmoji={myAvatar} currentColor={myColor}
+            onSave={(e,c)=>{setMyAvatar(e);setMyColor(c);setShowAvatarPicker(false);}}
+            onClose={()=>setShowAvatarPicker(false)}
+          />
+        )}
+
+        {/* My Avatar - tap to change */}
+        <button onClick={()=>setShowAvatarPicker(true)}
+          style={{display:'block',margin:'0 auto 14px',background:'none',border:'none',cursor:'pointer',position:'relative'}}>
+          <div style={{width:56,height:56,borderRadius:'50%',background:`${myColor}18`,border:`2px solid ${myColor}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.8rem',boxShadow:`0 0 20px ${myColor}30`,margin:'0 auto'}}>
+            {myAvatar}
+          </div>
+          <div style={{position:'absolute',bottom:-2,right:-2,width:18,height:18,borderRadius:'50%',background:'linear-gradient(135deg,#0099CC,#00D4FF)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.6rem'}}>✏️</div>
+        </button>
 
         {/* Spy icon */}
         <div style={{position:'relative',width:110,height:110,margin:'0 auto 14px',animation:'iconEntrance 1s cubic-bezier(0.34,1.56,0.64,1) 0.3s both'}}>
