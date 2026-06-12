@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameRulesModal } from '../components/GameRules';
 import { AvatarPickerModal } from '../components/AvatarPicker';
+import { CustomRoundsModal } from '../components/CustomRounds';
 import { haptic } from '../utils/haptic';
 import { toggleTheme, getTheme, applyTheme } from '../utils/theme';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS, getMyAvatar, getMyColor, ALL_AVATARS } from '../components/ui';
@@ -17,6 +18,9 @@ export function HomeScreen() {
   const [myAvatar, setMyAvatar] = useState(getMyAvatar);
   const [myColor, setMyColor]   = useState(getMyColor);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showCustomRounds, setShowCustomRounds] = useState(false);
+  const [customRounds, setCustomRounds] = useState(null);
+  const [customTopic, setCustomTopic] = useState('');
   const [hostName, setHostName] = useState('');
   const [joinName, setJoinName] = useState('');
   const [joinCode, setJoinCode] = useState(()=>sessionStorage.getItem('auto_join_code')||'');
@@ -72,6 +76,23 @@ export function HomeScreen() {
           {CATS.map(c=><Chip key={c} label={c} active={cfg.cats.includes(c)} onClick={()=>toggleCat(c)}/>)}
         </div>
 
+        {/* Custom rounds indicator */}
+        {customRounds && (
+          <div style={{marginBottom:12,padding:'10px 14px',borderRadius:12,background:'rgba(0,150,255,0.1)',border:'1px solid rgba(0,150,255,0.3)',display:'flex',alignItems:'center',gap:10}}>
+            <span style={{fontSize:'1.2rem'}}>🤖</span>
+            <div style={{flex:1}}>
+              <p style={{fontSize:'0.72rem',fontWeight:700,color:'#00AAFF',fontFamily:"'DM Sans',sans-serif"}}>AI Custom: "{customTopic}"</p>
+              <p style={{fontSize:'0.65rem',color:'rgba(0,150,255,0.6)',fontFamily:"'DM Sans',sans-serif"}}>{customRounds.length} rounds loaded</p>
+            </div>
+            <button onClick={()=>{setCustomRounds(null);setCustomTopic('');}} style={{background:'none',border:'none',color:'rgba(255,60,120,0.6)',fontSize:'1rem',cursor:'pointer'}}>✕</button>
+          </div>
+        )}
+
+        <button onClick={()=>setShowCustomRounds(true)}
+          style={{display:'block',width:'100%',marginBottom:14,padding:'10px',borderRadius:12,background:'rgba(0,100,255,0.08)',border:'1px dashed rgba(0,150,255,0.35)',color:'rgba(0,180,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.8rem',cursor:'pointer',letterSpacing:'0.05em'}}>
+          🤖 AI CUSTOM ROUNDS — Type any topic!
+        </button>
+
         <Label>ROUNDS</Label>
         <div style={{display:'flex',gap:8,marginBottom:24}}>
           {[3,4,5,6,7,8].map(r=>(
@@ -121,6 +142,18 @@ export function HomeScreen() {
             currentEmoji={myAvatar} currentColor={myColor}
             onSave={(e,c)=>{setMyAvatar(e);setMyColor(c);setShowAvatarPicker(false);}}
             onClose={()=>setShowAvatarPicker(false)}
+          />
+        )}
+
+        {/* Custom Rounds Modal */}
+        {showCustomRounds && (
+          <CustomRoundsModal
+            onStart={(rounds, topic) => {
+              setCustomRounds(rounds);
+              setCustomTopic(topic);
+              setShowCustomRounds(false);
+            }}
+            onClose={() => setShowCustomRounds(false)}
           />
         )}
 
