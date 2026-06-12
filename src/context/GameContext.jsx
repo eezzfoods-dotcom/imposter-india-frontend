@@ -75,6 +75,12 @@ export function GameProvider({ children }) {
       dispatch({ type: 'SET_MY_ROLE', role });
     });
 
+    socket.on('game:kicked', () => {
+      localStorage.removeItem('ii_session');
+      alert('You have been removed from the game by the host.');
+      window.location.href = window.location.href;
+    });
+
     socket.on('game:exit', () => {
       localStorage.removeItem('ii_session');
       // Force reload for all players - most reliable way to clear all state
@@ -90,6 +96,7 @@ export function GameProvider({ children }) {
       socket.off('game:role');
       socket.off('game:result');
       socket.off('game:exit');
+      socket.off('game:kicked');
     };
   }, [socket]);
 
@@ -152,6 +159,7 @@ export function GameProvider({ children }) {
     },
 
     removePlayer: (playerIdx) => socket.emit('room:remove_player', { playerIdx }),
+    kickPlayer:   (playerIdx) => socket.emit('room:remove_player', { playerIdx }),
     startGame:    (cb) => socket.emit('game:start', {}, (res) => { if (res && !res.ok) dispatch({ type: 'SET_ERROR', error: res.error }); cb && cb(res); }),
     moveToSpinner: () => socket.emit('game:spinner'),
     moveToDiscuss: () => socket.emit('game:discuss'),

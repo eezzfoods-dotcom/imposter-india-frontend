@@ -4,7 +4,7 @@ import { GameRulesModal } from '../components/GameRules';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS } from '../components/ui';
 
 const LANGS = ['Tamil','Telugu','Hindi','Malayalam','English'];
-const CATS  = ['Movies','Foods','Locations'];
+const CATS  = ['Movies','Foods','Locations','Cinema Artists','Sports Players'];
 
 // ── HOME ──────────────────────────────────────────────────
 export function HomeScreen() {
@@ -517,8 +517,9 @@ function RoleRevealPanel({ myRole, myIdx }) {
 
 // ── DISCUSS ───────────────────────────────────────────────
 export function DiscussScreen() {
-  const { room, myIdx, myRole, moveToVote, imposterWon, exitGame } = useGame();
+  const { room, myIdx, myRole, moveToVote, imposterWon, exitGame, kickPlayer } = useGame();
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [showKick, setShowKick] = useState(false);
   if(!room||!myRole) return null;
   const isHost = myIdx===0;
   const firstPlayer = room.players[room.firstIdx];
@@ -582,8 +583,9 @@ export function DiscussScreen() {
             <Btn onClick={moveToVote}>🗳 START VOTING ▶</Btn>
             <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
             <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setShowAddPlayer(true)} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(0,212,255,0.08)',border:'1px solid rgba(0,212,255,0.2)',color:'rgba(0,212,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>➕ Add Player</button>
-              <button onClick={()=>{if(window.confirm('Exit game? All players will be sent back to home.')) exitGame();}} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(255,60,120,0.08)',border:'1px solid rgba(255,60,120,0.2)',color:'#FF3C78',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit Game</button>
+              <button onClick={()=>setShowAddPlayer(true)} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(0,212,255,0.08)',border:'1px solid rgba(0,212,255,0.2)',color:'rgba(0,212,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>➕ Add</button>
+              <button onClick={()=>setShowKick(true)} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(255,180,0,0.08)',border:'1px solid rgba(255,180,0,0.2)',color:'#FFB800',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>👢 Kick</button>
+              <button onClick={()=>{if(window.confirm('Exit game? All players will be sent back to home.')) exitGame();}} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(255,60,120,0.08)',border:'1px solid rgba(255,60,120,0.2)',color:'#FF3C78',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit</button>
             </div>
           </div>
 
@@ -591,6 +593,29 @@ export function DiscussScreen() {
         ):(
           <p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',marginTop:16,fontFamily:"'DM Sans',sans-serif"}}>Host controls voting</p>
         )}
+        {/* Kick player modal */}
+        {showKick && (
+          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+            <div style={{width:'100%',maxWidth:320,background:'#000c28',border:'1px solid rgba(255,180,0,0.3)',borderRadius:20,padding:24}}>
+              <p className="font-display" style={{fontSize:'1.5rem',color:'#FFB800',marginBottom:4}}>KICK PLAYER</p>
+              <p style={{fontSize:'0.75rem',color:'rgba(255,255,255,0.4)',fontFamily:"'DM Sans',sans-serif",marginBottom:14}}>Select a player to remove from the game</p>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:14}}>
+                {room.players.map((p,i)=>{
+                  if(!p.name||p.removed||i===myIdx) return null;
+                  return(
+                    <button key={i} onClick={()=>{kickPlayer(i);setShowKick(false);}}
+                      style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderRadius:12,background:'rgba(255,180,0,0.08)',border:'1px solid rgba(255,180,0,0.2)',cursor:'pointer',color:'white',fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:'0.85rem'}}>
+                      <span style={{fontSize:'1.2rem'}}>👤</span>{p.name}
+                      <span style={{marginLeft:'auto',color:'#FFB800',fontSize:'0.75rem'}}>KICK →</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={()=>setShowKick(false)} style={{width:'100%',padding:'10px',borderRadius:12,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.5)',fontFamily:"'DM Sans',sans-serif",cursor:'pointer'}}>Cancel</button>
+            </div>
+          </div>
+        )}
+
         {/* Add player mid-game modal */}
         {showAddPlayer && (
           <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
