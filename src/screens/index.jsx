@@ -169,6 +169,7 @@ export function LobbyScreen() {
   const { room, myIdx, startGame, removePlayer, joinRoom, exitGame, error } = useGame();
   const [loading, setLoading] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
   if(!room) return null;
@@ -193,14 +194,27 @@ export function LobbyScreen() {
           <p style={{fontSize:'0.65rem',letterSpacing:'0.4em',color:'rgba(0,212,255,0.5)',marginBottom:4,fontWeight:700}}>ROOM CODE</p>
           <div className="font-display cyber-text animate-flicker" style={{fontSize:60,letterSpacing:'0.25em',lineHeight:1,marginBottom:4}}>{room.code}</div>
           <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:6}}>
-            <button onClick={()=>{
-              const url = `${window.location.origin}?join=${room.code}`;
-              if(navigator.share){navigator.share({title:'Join my Imposter India game!',url});}
-              else{navigator.clipboard.writeText(url);alert('Link copied!');}
-              haptic('light');
-            }} style={{padding:'6px 14px',borderRadius:20,background:'rgba(0,212,255,0.1)',border:'1px solid rgba(0,212,255,0.3)',color:'#00D4FF',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>
-              🔗 Share Invite Link
-            </button>
+            <div style={{position:'relative',display:'inline-block'}}>
+              <button onClick={()=>{
+                const url = `${window.location.origin}?join=${room.code}`;
+                if(navigator.share){navigator.share({title:'Join Imposter India!',text:`Join my game! Code: ${room.code}`,url});}
+                else{
+                  navigator.clipboard.writeText(url).then(()=>{
+                    setCopied(true);setTimeout(()=>setCopied(false),2000);
+                  }).catch(()=>{
+                    // fallback for browsers that block clipboard
+                    const el=document.createElement('input');
+                    el.value=url;document.body.appendChild(el);
+                    el.select();document.execCommand('copy');
+                    document.body.removeChild(el);
+                    setCopied(true);setTimeout(()=>setCopied(false),2000);
+                  });
+                }
+                haptic('light');
+              }} style={{padding:'6px 14px',borderRadius:20,background:'rgba(0,212,255,0.1)',border:'1px solid rgba(0,212,255,0.3)',color:'#00D4FF',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>
+                {copied ? '✅ Link Copied!' : '🔗 Share Invite Link'}
+              </button>
+            </div>
           </div>
         </div>
 
