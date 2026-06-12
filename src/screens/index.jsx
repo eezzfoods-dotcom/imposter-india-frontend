@@ -588,27 +588,25 @@ export function DiscussScreen() {
             </div>
           </div>
 
-          {/* Add player mid-game modal */}
-          {showAddPlayer && (
-            <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
-              <div style={{width:'100%',maxWidth:320,background:'#000c28',border:'1px solid rgba(0,212,255,0.3)',borderRadius:20,padding:20}}>
-                <p className="font-display" style={{fontSize:'1.5rem',color:'#00D4FF',marginBottom:4}}>ADD PLAYER</p>
-                <p style={{fontSize:'0.75rem',color:'rgba(255,255,255,0.4)',fontFamily:"'DM Sans',sans-serif",marginBottom:14}}>New player joins with least points and no role this round</p>
-                <input value={newMidName} onChange={e=>setNewMidName(e.target.value)}
-                  placeholder="Enter player name" maxLength={12} autoFocus
-                  style={{width:'100%',background:'rgba(0,18,51,0.8)',border:'1px solid rgba(0,212,255,0.3)',borderRadius:10,padding:'10px 14px',color:'white',fontFamily:"'DM Sans',sans-serif",fontSize:'1rem',outline:'none',marginBottom:12,boxSizing:'border-box'}}/>
-                <div style={{display:'flex',gap:8}}>
-                  <button onClick={()=>{setShowAddPlayer(false);setNewMidName('');}} style={{flex:1,padding:'10px',borderRadius:10,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.5)',fontFamily:"'DM Sans',sans-serif",cursor:'pointer'}}>Cancel</button>
-                  <button onClick={()=>{
-                    if(!newMidName.trim()) return;
-                    addPlayerMidGame(newMidName.trim(), ()=>{setShowAddPlayer(false);setNewMidName('');});
-                  }} style={{flex:2,padding:'10px',borderRadius:10,background:'linear-gradient(135deg,#0099CC,#00D4FF)',border:'none',color:'#000814',fontFamily:"'Bebas Neue',sans-serif",fontSize:'1rem',letterSpacing:'0.1em',cursor:'pointer'}}>ADD ▶</button>
-                </div>
-              </div>
-            </div>
-          )}
+          
         ):(
           <p style={{textAlign:'center',fontSize:'0.8rem',color:'rgba(0,212,255,0.3)',marginTop:16,fontFamily:"'DM Sans',sans-serif"}}>Host controls voting</p>
+        )}
+        {/* Add player mid-game modal */}
+        {showAddPlayer && (
+          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+            <div style={{width:'100%',maxWidth:320,background:'#000c28',border:'1px solid rgba(0,212,255,0.3)',borderRadius:20,padding:20}}>
+              <p className="font-display" style={{fontSize:'1.5rem',color:'#00D4FF',marginBottom:4}}>ADD PLAYER</p>
+              <p style={{fontSize:'0.75rem',color:'rgba(255,255,255,0.4)',fontFamily:"'DM Sans',sans-serif",marginBottom:14}}>New player joins next round with 0 points</p>
+              <input value={newMidName} onChange={e=>setNewMidName(e.target.value)}
+                placeholder="Enter player name" maxLength={12} autoFocus
+                style={{width:'100%',background:'rgba(0,18,51,0.8)',border:'1px solid rgba(0,212,255,0.3)',borderRadius:10,padding:'10px 14px',color:'white',fontFamily:"'DM Sans',sans-serif",fontSize:'1rem',outline:'none',marginBottom:12,boxSizing:'border-box'}}/>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>{setShowAddPlayer(false);setNewMidName('');}} style={{flex:1,padding:'10px',borderRadius:10,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.5)',fontFamily:"'DM Sans',sans-serif",cursor:'pointer'}}>Cancel</button>
+                <button onClick={()=>{if(newMidName.trim()){addPlayerMidGame(newMidName.trim(),()=>{setShowAddPlayer(false);setNewMidName('');})}}} style={{flex:2,padding:'10px',borderRadius:10,background:'linear-gradient(135deg,#0099CC,#00D4FF)',border:'none',color:'#000814',fontFamily:"'Bebas Neue',sans-serif",fontSize:'1rem',letterSpacing:'0.1em',cursor:'pointer'}}>ADD ▶</button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </Screen>
