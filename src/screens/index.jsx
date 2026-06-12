@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameRulesModal } from '../components/GameRules';
 import { AvatarPickerModal } from '../components/AvatarPicker';
-import { getMyAvatar, getMyColor, COLORS, ALL_AVATARS } from '../components/ui';
 import { haptic } from '../utils/haptic';
 import { toggleTheme, getTheme, applyTheme } from '../utils/theme';
-import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS } from '../components/ui';
+import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS, getMyAvatar, getMyColor, ALL_AVATARS } from '../components/ui';
 
 const LANGS = ['Tamil','Telugu','Hindi','Malayalam','English'];
 const CATS  = ['Movies','Foods','Locations','Cinema Artists','Sports Players'];

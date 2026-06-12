@@ -20,10 +20,7 @@ export function getMyColor() {
   return saved || COLORS[0];
 }
 
-export function AvatarPicker({ onSelect, selectedEmoji, selectedColor }) {
-  const { useState: useStateLocal } = require !== undefined ? { useState: null } : {};
-  return null; // placeholder - implemented in screens
-}
+
 
 // ── LOADING DOTS ──────────────────────────────────────────
 export function LoadingDots() {
