@@ -75,6 +75,11 @@ export function GameProvider({ children }) {
       dispatch({ type: 'SET_MY_ROLE', role });
     });
 
+    socket.on('game:exit', () => {
+      localStorage.removeItem('ii_session');
+      dispatch({ type: 'RESET' });
+    });
+
     socket.on('game:result', (data) => {
       dispatch({ type: 'SET_RESULT', data });
     });
@@ -83,6 +88,7 @@ export function GameProvider({ children }) {
       socket.off('room:update');
       socket.off('game:role');
       socket.off('game:result');
+      socket.off('game:exit');
     };
   }, [socket]);
 
@@ -155,6 +161,13 @@ export function GameProvider({ children }) {
     nextRound:     (cb) => socket.emit('game:next_round', {}, (res) => { if (res && !res.ok) dispatch({ type: 'SET_ERROR', error: res.error }); cb && cb(res); }),
     goLeaderboard: () => socket.emit('game:leaderboard'),
     playAgain:     () => { clearSession(); socket.emit('game:play_again'); },
+    exitGame: () => {
+      socket.emit('game:exit');
+      localStorage.removeItem('ii_session');
+      reconnectAttempted.current = false;
+      dispatch({ type: 'RESET' });
+    },
+
     clearError:    () => dispatch({ type: 'SET_ERROR', error: null }),
   };
 

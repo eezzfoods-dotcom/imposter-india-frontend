@@ -2,75 +2,92 @@ import { useState, useEffect, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useGame } from '../context/GameContext';
 
-const REACTION_EMOJIS = ['😂','😱','🤔','😤','👀','🔥','💀','🫣','😮','🤫'];
+const EMOJIS = ['😂','😱','🤔','😤','👀','🔥','💀','🫣','😮','🤫'];
 
 export function ReactionBar() {
   const { socket } = useSocket();
   const { screen } = useGame();
-  const [floating, setFloating] = useState([]);
-  const idRef = useRef(0);
+  const [items, setItems] = useState([]);
+  const nextId = useRef(1);
 
   useEffect(() => {
     if (!socket) return;
-    function onReaction(data) {
-      const id = ++idRef.current;
-      const left = 10 + (id * 37) % 75;
-      setFloating(f => [...f, { ...data, id, left }]);
-      setTimeout(() => setFloating(f => f.filter(r => r.id !== id)), 3000);
-    }
-    socket.on('game:reaction', onReaction);
-    return () => socket.off('game:reaction', onReaction);
+    const handler = (data) => {
+      const id = nextId.current++;
+      const left = 5 + (id * 13 + 17) % 80;
+      setItems(prev => [...prev, { id, left, emoji: data.emoji, name: data.playerName }]);
+      setTimeout(() => setItems(prev => prev.filter(x => x.id !== id)), 3000);
+    };
+    socket.on('game:reaction', handler);
+    return () => socket.off('game:reaction', handler);
   }, [socket]);
 
-  const showOnScreens = ['discuss', 'vote', 'spinner'];
-  if (!showOnScreens.includes(screen)) return null;
+  const activeScreens = ['discuss', 'vote', 'spinner'];
+  if (!activeScreens.includes(screen)) return null;
 
-  function sendReaction(emoji) {
-    if (!socket) return;
-    socket.emit('game:reaction', { emoji });
-  }
+  const send = (emoji) => {
+    if (socket) socket.emit('game:reaction', { emoji });
+  };
 
   return (
-    <div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:9000}}>
+    <>
       {/* Floating emojis */}
-      {floating.map(r => (
-        <div key={r.id} style={{
-          position:'absolute',
-          bottom:80,
-          left:`${r.left}%`,
-          pointerEvents:'none',
-          animation:'floatReaction 3s ease-out forwards',
-          textAlign:'center',
+      {items.map(item => (
+        <div key={item.id} style={{
+          position: 'fixed',
+          bottom: 80,
+          left: `${item.left}%`,
+          zIndex: 99999,
+          pointerEvents: 'none',
+          textAlign: 'center',
+          animation: 'floatReaction 3s ease-out forwards',
         }}>
-          <div style={{fontSize:'2.5rem'}}>{r.emoji}</div>
-          <div style={{fontSize:'0.65rem',color:'white',background:'rgba(0,0,0,0.7)',padding:'2px 8px',borderRadius:10,fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap',marginTop:2}}>{r.playerName}</div>
+          <div style={{ fontSize: 36 }}>{item.emoji}</div>
+          <div style={{
+            fontSize: 11,
+            color: 'white',
+            background: 'rgba(0,0,0,0.75)',
+            borderRadius: 10,
+            padding: '2px 8px',
+            marginTop: 2,
+            fontFamily: 'sans-serif',
+            whiteSpace: 'nowrap',
+          }}>{item.name}</div>
         </div>
       ))}
 
-      {/* Emoji bar */}
+      {/* Bar */}
       <div style={{
-        position:'absolute',
-        bottom:16,
-        left:'50%',
-        transform:'translateX(-50%)',
-        pointerEvents:'all',
-        display:'flex',
-        gap:2,
-        background:'rgba(0,8,20,0.95)',
-        border:'1px solid rgba(0,212,255,0.3)',
-        borderRadius:40,
-        padding:'6px 8px',
-        boxShadow:'0 4px 30px rgba(0,0,0,0.8)',
+        position: 'fixed',
+        bottom: 12,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+        display: 'flex',
+        background: 'rgba(0,10,30,0.97)',
+        border: '1.5px solid rgba(0,212,255,0.35)',
+        borderRadius: 50,
+        padding: '6px 10px',
+        gap: 2,
+        boxShadow: '0 4px 30px rgba(0,0,0,0.9)',
       }}>
-        {REACTION_EMOJIS.map(emoji => (
+        {EMOJIS.map(e => (
           <button
-            key={emoji}
-            onPointerDown={e => { e.preventDefault(); e.stopPropagation(); sendReaction(emoji); }}
-            style={{fontSize:'1.4rem',background:'none',border:'none',cursor:'pointer',padding:'4px 5px',borderRadius:8,WebkitTapHighlightColor:'transparent',touchAction:'manipulation'}}>
-            {emoji}
-          </button>
+            key={e}
+            onPointerDown={ev => { ev.preventDefault(); send(e); }}
+            style={{
+              fontSize: 22,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '3px 4px',
+              touchAction: 'manipulation',
+              userSelect: 'none',
+              WebkitUserSelect: 'none',
+            }}
+          >{e}</button>
         ))}
       </div>
-    </div>
+    </>
   );
 }
