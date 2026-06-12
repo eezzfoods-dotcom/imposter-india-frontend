@@ -186,3 +186,42 @@ html, body, #root {
   70%  { opacity: 1; }
   100% { transform: translateY(-180px) scale(1.2); opacity: 0; }
 }
+
+/* ── CSS VARIABLES ── */
+:root {
+  --bg-primary: #000814;
+  --bg-card: rgba(0,18,51,0.8);
+  --bg-card2: rgba(0,18,51,0.6);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.8);
+  --text-muted: rgba(0,212,255,0.4);
+  --border: rgba(0,212,255,0.15);
+  --accent: #0099CC;
+  --accent2: #00D4FF;
+  --cyber-bg: #000814;
+}
+
+/* Light theme */
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background: #f0f4ff;
+  color: #0a1628;
+}
+[data-theme="light"] .cyber-bg {
+  background:
+    linear-gradient(rgba(0,100,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,100,255,0.03) 1px, transparent 1px),
+    linear-gradient(160deg, #f0f4ff 0%, #e0eaff 50%, #f0f4ff 100%);
+  background-size: 40px 40px, 40px 40px, 100% 100%;
+}
+[data-theme="light"] .glass {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,100,255,0.15);
+}
+[data-theme="light"] .cyber-text {
+  background: linear-gradient(135deg, #0055aa 0%, #0099ff 50%, #0055aa 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

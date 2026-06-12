@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { applyTheme, getTheme } from './utils/theme';
 import { useGame } from './context/GameContext';
 import { useOffline } from './context/OfflineContext';
 import {
@@ -62,6 +63,21 @@ function ModeSelectScreen({ onSelectOnline, onSelectOffline }) {
 // ── APP ROOT ──────────────────────────────────────────────
 export default function App() {
   const { screen: onlineScreen, reconnecting } = useGame();
+
+  useEffect(() => {
+    // Apply saved theme on load
+    applyTheme(getTheme());
+
+    // Handle invite link ?join=XXXX
+    const params = new URLSearchParams(window.location.search);
+    const joinCode = params.get('join');
+    if (joinCode && joinCode.length === 4) {
+      // Remove from URL
+      window.history.replaceState({}, '', '/');
+      // Store for join screen
+      sessionStorage.setItem('auto_join_code', joinCode.toUpperCase());
+    }
+  }, []);
   const { screen: offlineScreen, reset } = useOffline();
   const [mode, setMode] = useState('select'); // select | online | offline
 

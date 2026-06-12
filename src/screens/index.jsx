@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameRulesModal } from '../components/GameRules';
+import { haptic } from '../utils/haptic';
+import { toggleTheme, getTheme, applyTheme } from '../utils/theme';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS } from '../components/ui';
 
 const LANGS = ['Tamil','Telugu','Hindi','Malayalam','English'];
@@ -9,11 +11,12 @@ const CATS  = ['Movies','Foods','Locations','Cinema Artists','Sports Players'];
 // ── HOME ──────────────────────────────────────────────────
 export function HomeScreen() {
   const { createRoom, joinRoom, error } = useGame();
-  const [view, setView]       = useState('home');
+  const [view, setView]       = useState(()=>sessionStorage.getItem('auto_join_code')?'join':'home');
+  const [themeLabel, setThemeLabel] = useState(getTheme()==='light'?'🌙 Dark Mode':'☀️ Light Mode');
   const [hostName, setHostName] = useState('');
   const [joinName, setJoinName] = useState('');
-  const [joinCode, setJoinCode] = useState('');
-  const [cfg, setCfg] = useState({ rounds:5, langs:['Tamil'], cats:['Movies','Foods','Locations'] });
+  const [joinCode, setJoinCode] = useState(()=>sessionStorage.getItem('auto_join_code')||'');
+  const [cfg, setCfg] = useState({ rounds:5, langs:['Tamil'], cats:['Movies','Foods','Locations'], decade:'All' });
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState('');
 
@@ -28,7 +31,9 @@ export function HomeScreen() {
   function handleJoin(){
     if(!joinName.trim())return setLocalError('Enter your name');
     if(joinCode.length!==4)return setLocalError('Enter a 4-letter room code');
+    sessionStorage.removeItem('auto_join_code');
     setLoading(true);setLocalError('');
+    haptic('medium');
     joinRoom(joinCode,joinName.trim(),()=>setLoading(false));
   }
 
@@ -41,6 +46,17 @@ export function HomeScreen() {
 
         <Label>YOUR NAME</Label>
         <Input value={hostName} onChange={setHostName} placeholder="Enter your name" maxLength={12} className="mb-4" autoFocus onEnter={handleCreate}/>
+
+        <Label>DECADE FILTER (Movies only)</Label>
+        <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:14}}>
+          {['All','80s','90s','2000s','2010s','2020s'].map(d=>(
+            <button key={d} onClick={()=>setCfg(c=>({...c,decade:d}))}
+              className="btn-press px-3 py-2 rounded-lg text-sm font-body font-bold"
+              style={{background:cfg.decade===d?'linear-gradient(135deg,#0099CC,#00D4FF)':'rgba(0,18,51,0.8)',border:`1px solid ${cfg.decade===d?'rgba(0,212,255,0.5)':'rgba(0,212,255,0.15)'}`,color:cfg.decade===d?'#000814':'rgba(0,212,255,0.6)',boxShadow:cfg.decade===d?'0 0 15px rgba(0,212,255,0.3)':'none'}}>
+              {d}
+            </button>
+          ))}
+        </div>
 
         <Label>LANGUAGES</Label>
         <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:16}}>
@@ -130,6 +146,7 @@ export function HomeScreen() {
         <div style={{display:'flex',flexDirection:'column',gap:12,animation:'titleEntrance 0.8s ease 1.3s both'}}>
           <Btn onClick={()=>setView('host')}>HOST A GAME ▶</Btn>
           <Btn onClick={()=>setView('join')} variant="secondary">JOIN A GAME ◈</Btn>
+          <button onClick={()=>{const t=toggleTheme();setThemeLabel(t==='light'?'🌙 Dark Mode':'☀️ Light Mode');}} style={{background:'none',border:'none',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer',marginTop:4}}>{themeLabel}</button>
         </div>
       </div>
     </Screen>
@@ -175,7 +192,16 @@ export function LobbyScreen() {
         <div className="text-center mb-6">
           <p style={{fontSize:'0.65rem',letterSpacing:'0.4em',color:'rgba(0,212,255,0.5)',marginBottom:4,fontWeight:700}}>ROOM CODE</p>
           <div className="font-display cyber-text animate-flicker" style={{fontSize:60,letterSpacing:'0.25em',lineHeight:1,marginBottom:4}}>{room.code}</div>
-          <p style={{fontSize:'0.72rem',color:'rgba(0,212,255,0.3)',fontFamily:"'DM Sans',sans-serif"}}>Share this code with friends</p>
+          <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:6}}>
+            <button onClick={()=>{
+              const url = `${window.location.origin}?join=${room.code}`;
+              if(navigator.share){navigator.share({title:'Join my Imposter India game!',url});}
+              else{navigator.clipboard.writeText(url);alert('Link copied!');}
+              haptic('light');
+            }} style={{padding:'6px 14px',borderRadius:20,background:'rgba(0,212,255,0.1)',border:'1px solid rgba(0,212,255,0.3)',color:'#00D4FF',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>
+              🔗 Share Invite Link
+            </button>
+          </div>
         </div>
 
         <SectionCard>
@@ -268,7 +294,7 @@ export function PlayingScreen() {
   const color = COLORS[myIdx%COLORS.length];
   const playerName = room.players[myIdx]?.name||'';
 
-  function handleFlip(){if(flipped)return;setFlipped(true);setTimeout(()=>setShowContent(true),350);}
+  function handleFlip(){if(flipped)return;setFlipped(true);haptic('reveal');setTimeout(()=>setShowContent(true),350);}
 
   return (
     <Screen>
@@ -580,7 +606,7 @@ export function DiscussScreen() {
 
         {isHost?(
           <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:8}}>
-            <Btn onClick={moveToVote}>🗳 START VOTING ▶</Btn>
+            <Btn onClick={()=>{moveToVote();haptic('heavy');}}>🗳 START VOTING ▶</Btn>
             <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
             <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setShowAddPlayer(true)} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(0,212,255,0.08)',border:'1px solid rgba(0,212,255,0.2)',color:'rgba(0,212,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>➕ Add</button>
@@ -646,7 +672,7 @@ export function VoteScreen() {
   const voteCount = Object.keys(room.votes||{}).length;
   const allVoted = voteCount>=filledPlayers.length;
 
-  function handleVote(idx){if(myVote>=0)return;setMyVote(idx);castVote(idx);}
+  function handleVote(idx){if(myVote>=0)return;setMyVote(idx);castVote(idx);haptic('vote');}
 
   return (
     <Screen>
