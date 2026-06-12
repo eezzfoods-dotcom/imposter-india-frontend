@@ -77,7 +77,8 @@ export function GameProvider({ children }) {
 
     socket.on('game:exit', () => {
       localStorage.removeItem('ii_session');
-      dispatch({ type: 'RESET' });
+      // Force reload for all players - most reliable way to clear all state
+      window.location.href = window.location.href;
     });
 
     socket.on('game:result', (data) => {
@@ -163,9 +164,20 @@ export function GameProvider({ children }) {
     playAgain:     () => { clearSession(); socket.emit('game:play_again'); },
     exitGame: () => {
       socket.emit('game:exit');
-      localStorage.removeItem('ii_session');
-      reconnectAttempted.current = false;
-      dispatch({ type: 'RESET' });
+      // Small delay to ensure broadcast reaches others before we reload
+      setTimeout(() => {
+        localStorage.removeItem('ii_session');
+        window.location.href = window.location.href;
+      }, 300);
+    },
+
+    addPlayerMidGame: (playerName, cb) => {
+      const room = stateRef.current.room;
+      if (!room) return;
+      socket.emit('room:join', { code: room.code, playerName }, (res) => {
+        if (!res.ok) return dispatch({ type: 'SET_ERROR', error: res.error });
+        cb && cb(res);
+      });
     },
 
     clearError:    () => dispatch({ type: 'SET_ERROR', error: null }),
