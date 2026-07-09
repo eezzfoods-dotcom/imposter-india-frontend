@@ -5,6 +5,9 @@ import { AvatarPickerModal } from '../components/AvatarPicker';
 import { CustomRoundsModal } from '../components/CustomRounds';
 import { haptic } from '../utils/haptic';
 import { toggleTheme, getTheme, applyTheme } from '../utils/theme';
+import { sound, spinTicks, toggleSound, getSoundOn } from '../utils/sound';
+import { shareResultCard } from '../utils/shareCard';
+import { StatsModal } from '../components/StatsModal';
 import { Screen, Btn, Input, Label, Avatar, PlayerRow, Chip, SectionCard, BackBtn, Divider, LoadingDots, COLORS, EMOJIS, getMyAvatar, getMyColor, ALL_AVATARS } from '../components/ui';
 
 const LANGS = ['Tamil','Telugu','Hindi','Malayalam','English'];
@@ -15,6 +18,8 @@ export function HomeScreen() {
   const { createRoom, joinRoom, error } = useGame();
   const [view, setView]       = useState(()=>sessionStorage.getItem('auto_join_code')?'join':'home');
   const [themeLabel, setThemeLabel] = useState(getTheme()==='light'?'🌙 Dark Mode':'☀️ Light Mode');
+  const [soundLabel, setSoundLabel] = useState(getSoundOn()?'🔊 Sound On':'🔇 Sound Off');
+  const [showStats, setShowStats] = useState(false);
   const [myAvatar, setMyAvatar] = useState(getMyAvatar);
   const [myColor, setMyColor]   = useState(getMyColor);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
@@ -199,10 +204,16 @@ export function HomeScreen() {
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:12,animation:'titleEntrance 0.8s ease 1.3s both'}}>
-          <Btn onClick={()=>setView('host')}>HOST A GAME ▶</Btn>
-          <Btn onClick={()=>setView('join')} variant="secondary">JOIN A GAME ◈</Btn>
-          <button onClick={()=>{const t=toggleTheme();setThemeLabel(t==='light'?'🌙 Dark Mode':'☀️ Light Mode');}} style={{background:'none',border:'none',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer',marginTop:4}}>{themeLabel}</button>
+          <Btn onClick={()=>{sound('click');setView('host');}}>HOST A GAME ▶</Btn>
+          <Btn onClick={()=>{sound('click');setView('join');}} variant="secondary">JOIN A GAME ◈</Btn>
+          <div style={{display:'flex',gap:14,justifyContent:'center',marginTop:4}}>
+            <button onClick={()=>{const t=toggleTheme();setThemeLabel(t==='light'?'🌙 Dark Mode':'☀️ Light Mode');}} style={{background:'none',border:'none',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer'}}>{themeLabel}</button>
+            <button onClick={()=>{const on=toggleSound();setSoundLabel(on?'🔊 Sound On':'🔇 Sound Off');}} style={{background:'none',border:'none',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer'}}>{soundLabel}</button>
+            <button onClick={()=>setShowStats(true)} style={{background:'none',border:'none',color:'rgba(0,212,255,0.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.78rem',cursor:'pointer'}}>📊 My Stats</button>
+          </div>
         </div>
+
+        {showStats && <StatsModal onClose={()=>setShowStats(false)}/>}
       </div>
     </Screen>
   );
@@ -363,7 +374,7 @@ export function PlayingScreen() {
   const color = COLORS[myIdx%COLORS.length];
   const playerName = room.players[myIdx]?.name||'';
 
-  function handleFlip(){if(flipped)return;setFlipped(true);haptic('reveal');setTimeout(()=>setShowContent(true),350);}
+  function handleFlip(){if(flipped)return;setFlipped(true);haptic('reveal');sound(isImp?'imposter':'reveal');setTimeout(()=>setShowContent(true),350);}
 
   return (
     <Screen>
@@ -496,7 +507,8 @@ export function SpinnerScreen() {
         if(wheelRef.current){
           wheelRef.current.style.transition='transform 4s cubic-bezier(0.17,0.67,0.12,1)';
           wheelRef.current.style.transform=`rotate(${totalRotation}deg)`;
-          setTimeout(()=>setDone(true),4300);
+          spinTicks(4000);
+          setTimeout(()=>{setDone(true);sound('ding');},4300);
         }
       },400);
     }
@@ -675,7 +687,7 @@ export function DiscussScreen() {
 
         {isHost?(
           <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:8}}>
-            <Btn onClick={()=>{moveToVote();haptic('heavy');}}>🗳 START VOTING ▶</Btn>
+            <Btn onClick={()=>{moveToVote();haptic('heavy');sound('lock');}}>🗳 START VOTING ▶</Btn>
             <Btn onClick={imposterWon} variant="danger">🕵️ IMPOSTER REVEALED THE {(round?.c||'MOVIE').toUpperCase()}</Btn>
             <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setShowAddPlayer(true)} style={{flex:1,padding:'10px',borderRadius:12,background:'rgba(0,212,255,0.08)',border:'1px solid rgba(0,212,255,0.2)',color:'rgba(0,212,255,0.7)',fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:'0.75rem',cursor:'pointer'}}>➕ Add</button>
@@ -741,7 +753,7 @@ export function VoteScreen() {
   const voteCount = Object.keys(room.votes||{}).length;
   const allVoted = voteCount>=filledPlayers.length;
 
-  function handleVote(idx){if(myVote>=0)return;setMyVote(idx);castVote(idx);haptic('vote');}
+  function handleVote(idx){if(myVote>=0)return;setMyVote(idx);castVote(idx);haptic('vote');sound('vote');}
 
   return (
     <Screen>
@@ -800,6 +812,7 @@ export function VoteScreen() {
 export function ResultScreen() {
   const { room, myIdx, resultData, nextRound, goLeaderboard, exitGame } = useGame();
   const [loading, setLoading] = useState(false);
+  useEffect(()=>{if(resultData)sound(resultData.impCaught?'win':'lose');},[resultData]);
   if(!room||!resultData) return <Screen center><LoadingDots/></Screen>;
 
   const isHost = myIdx===0;
@@ -866,8 +879,16 @@ export function ResultScreen() {
 // ── LEADERBOARD ───────────────────────────────────────────
 export function LeaderboardScreen() {
   const { room, myIdx, playAgain, exitGame } = useGame();
+  const [shareState, setShareState] = useState('');
+  useEffect(()=>{sound('win');},[]);
   if(!room) return null;
   const isHost = myIdx===0;
+
+  async function handleShare(){
+    haptic('light');
+    const result = await shareResultCard({ room });
+    if(result==='copied'){setShareState('✅ Copied to clipboard!');setTimeout(()=>setShareState(''),2500);}
+  }
   const sorted = [...room.players].map((p,i)=>({p,i})).filter(({p})=>p.name&&!p.removed).sort((a,b)=>b.p.score-a.p.score);
   const winner = sorted[0];
   const winnerColor = winner?COLORS[winner.i%COLORS.length]:'#00D4FF';
@@ -905,8 +926,13 @@ export function LeaderboardScreen() {
           </div>
         </SectionCard>
 
+        <div style={{marginTop:8,marginBottom:8}}>
+          <Btn onClick={handleShare} variant="secondary" small>📤 SHARE RESULT</Btn>
+          {shareState&&<p style={{textAlign:'center',fontSize:'0.72rem',color:'#00D478',marginTop:6,fontFamily:"'DM Sans',sans-serif"}}>{shareState}</p>}
+        </div>
+
         {isHost?(
-          <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:8}}>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
             <Btn onClick={playAgain}>PLAY AGAIN ▶</Btn>
             <button onClick={()=>exitGame()} style={{padding:'10px',borderRadius:12,background:'transparent',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.3)',fontFamily:"'DM Sans',sans-serif",fontSize:'0.75rem',cursor:'pointer'}}>🚪 Exit Game</button>
           </div>

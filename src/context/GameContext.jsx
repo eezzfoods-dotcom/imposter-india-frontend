@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import { useSocket } from './SocketContext';
+import { recordRound, recordGame } from '../utils/stats';
 
 const GameContext = createContext(null);
 
@@ -57,6 +58,7 @@ export function GameProvider({ children }) {
   const stateRef = useRef(state);
   stateRef.current = state;
   const reconnectAttempted = useRef(false);
+  const gameRecorded = useRef(false);
 
   useEffect(() => {
     if (!socket) return;
@@ -69,6 +71,22 @@ export function GameProvider({ children }) {
       };
       const newScreen = phaseToScreen[room.phase];
       if (newScreen) dispatch({ type: 'SET_SCREEN', screen: newScreen });
+
+      // Record lifetime stats once per game when the final leaderboard shows
+      if (room.phase === 'leaderboard') {
+        if (!gameRecorded.current) {
+          gameRecorded.current = true;
+          try {
+            const myIdx = stateRef.current.myIdx;
+            const me = room.players[myIdx];
+            const filled = room.players.filter(p => p.name && !p.removed);
+            const maxScore = Math.max(...filled.map(p => p.score));
+            if (me && me.name && !me.removed) recordGame({ won: me.score === maxScore });
+          } catch (e) {}
+        }
+      } else {
+        gameRecorded.current = false;
+      }
     });
 
     socket.on('game:role', (role) => {
@@ -89,6 +107,22 @@ export function GameProvider({ children }) {
 
     socket.on('game:result', (data) => {
       dispatch({ type: 'SET_RESULT', data });
+
+      // Record my round outcome (room:update with final votes arrives just before this)
+      try {
+        const myIdx = stateRef.current.myIdx;
+        if (myIdx >= 0 && Array.isArray(data.impIdxs)) {
+          const wasImp = data.impIdxs.includes(myIdx);
+          const votes = stateRef.current.room?.votes || {};
+          const myVote = votes[myIdx];
+          recordRound({
+            wasImp,
+            escaped: wasImp && !data.impCaught,
+            voted: myVote !== undefined,
+            votedCorrectly: myVote !== undefined && data.impIdxs.includes(myVote),
+          });
+        }
+      } catch (e) {}
     });
 
     return () => {

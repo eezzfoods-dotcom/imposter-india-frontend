@@ -4,6 +4,7 @@ import { SocketProvider } from './context/SocketContext';
 import { GameProvider } from './context/GameContext';
 import { OfflineProvider } from './context/OfflineContext';
 import { ReactionBar } from './components/Reactions';
+import { ChatDock } from './components/Chat';
 import { PWAPrompt } from './components/PWAPrompt';
 import App from './App';
 import './index.css';
@@ -13,6 +14,7 @@ function Root() {
     <>
       <App />
       <ReactionBar />
+      <ChatDock />
       <PWAPrompt />
     </>
   );
