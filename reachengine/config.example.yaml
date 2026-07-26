@@ -1,0 +1,76 @@
+# ReachEngine configuration (SYS-01)
+# ---------------------------------------------------------------------------
+# Copy to `config.yaml` and edit. Every value below is the built-in default,
+# so an empty file (or a missing one) works too.
+#
+# SECURITY (SYS-06): This file must NEVER contain tokens, API keys, or
+# passwords. It only references *paths* to encrypted vaults and *names* of
+# environment variables. `.gitignore` keeps tokens/, media/, *.env, and the
+# DB out of git.
+# ---------------------------------------------------------------------------
+
+# Filesystem layout. Paths support ~ and $ENV expansion.
+paths:
+  inbox: ./inbox            # watched folder for new source videos (ING-01)
+  media_root: ./media       # renders & derived media (git-ignored)
+  cache_dir: ./.cache       # analysis artifact cache by content hash (ANL-08)
+  logs_dir: ./logs          # structured JSON logs (SYS-02)
+  tokens_dir: ./tokens      # encrypted OAuth vault (git-ignored, SYS-06/07)
+  db_path: ./reachengine.db # SQLite metadata database (§9)
+
+# Ingest (ING-*)
+ingest:
+  allowed_extensions: [".mp4", ".mov", ".mkv", ".webm"]  # ING-02
+  max_duration_hours: 4.0        # reject/flag longer sources (ING-04)
+  watch_interval_seconds: 30     # inbox poll interval (ING-01)
+
+# Analysis (ANL-*)
+analysis:
+  whisper_model: base            # 'base' or 'small' (open decision #2)
+  default_language: null         # null = auto-detect; else en/ta/te/ml/hi (ANL-02)
+  scene_threshold: 27.0          # PySceneDetect content threshold (ANL-03)
+
+# Clip selection (CLP-*)
+clip:
+  candidate_count: 3             # ranked candidates, human review gate (CLP-01)
+  min_seconds: 15.0              # clip length bounds (CLP-04)
+  max_seconds: 60.0
+
+# Render (RND-*)
+render:
+  aspects: ["9:16", "1:1", "4:5", "16:9"]  # RND-01
+  safe_zone_top_pct: 0.15        # platform UI covers ~top 15% (RND-03)
+  safe_zone_bottom_pct: 0.20     # ...and ~bottom 20%
+  loudness_target_lufs: -14.0    # normalisation target (RND-06)
+  tamil_font: "Noto Sans Tamil"  # Unicode-complete Tamil font (RND-05)
+
+# Publishing (PUB-*)
+publish:
+  youtube_daily_quota_units: 10000   # C3 daily quota
+  youtube_upload_cost_units: 1600    # ~6 uploads/day
+  stagger_minutes: 15                # gap between platforms (PUB-10)
+  max_retry_attempts: 5              # retry queue ceiling (PUB-07)
+  dry_run: true                      # default: render, publish nothing (RND-11)
+
+# Scheduling & timing (SCH-*)
+scheduling:
+  timezone: "Asia/Kolkata"       # display timezone; storage is UTC (NFR-05)
+  cold_start_min_posts: 25       # posts before own timing model (SCH-03/04)
+
+# AI provider (open decision #1). The key comes from the named env var /
+# keyring entry — it is NEVER stored here.
+ai:
+  provider: claude               # 'claude' or 'gemini'
+  api_key_env: ANTHROPIC_API_KEY
+
+# Logging (SYS-02)
+logging:
+  level: INFO                    # DEBUG/INFO/WARNING/ERROR/CRITICAL
+  json_to_file: true
+  console: true
+
+# System & ops (SYS-*)
+system:
+  min_free_disk_gb: 5.0          # doctor warns below this (SYS-04)
+  render_retention_days: 14      # purge intermediate renders (SYS-09)
+  backup_db_before_migration: true  # SYS-08

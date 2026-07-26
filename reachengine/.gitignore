@@ -1,0 +1,31 @@
+# --- ReachEngine secrets & media (SYS-06 / SYS-07) ---
+# Never commit tokens, encrypted vaults, media, caches, or the local DB.
+tokens/
+*.env
+.env
+media/
+.cache/
+logs/
+inbox/
+reachengine.db
+reachengine.db-*
+*.db.bak
+backups/
+
+# Local config (may reference paths/env names; still keep it out of git)
+config.yaml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
